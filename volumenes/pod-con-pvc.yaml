@@ -1,0 +1,79 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name:  test-pv
+  labels:
+    mysql: ready
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 10G
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /test
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: test-pvc
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10G
+  selector:
+    matchLabels:
+      mysql: ready
+
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name:  secret
+data:
+  pass: IGFkbWlu
+type: Opaque
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+spec:
+  replicas: 1
+  revisionHistoryLimit: 5  
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      
+      containers:
+      - name: mysql
+        volumeMounts:
+          - name: mysql-vol
+            mountPath: /var/lib/mysql/
+        image: mysql:5.7
+        env:
+          - name: MYSQL_ROOT_PASSWORD
+            valueFrom: 
+                secretKeyRef:
+                  name:  secret
+                  key: pass 
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 3306
+      volumes:
+        - name:  mysql-vol
+          persistentVolumeClaim:
+              claimName: test-pvc

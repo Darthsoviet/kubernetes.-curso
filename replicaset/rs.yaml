@@ -1,0 +1,24 @@
+apiVersion: apps/v1 
+kind: ReplicaSet
+metadata: 
+  name: rs-test
+  labels: #labels del replica set
+    app: rs-test
+spec:
+  replicas: 2 #numero de replicas que tenra osease copias de los podss
+  selector:
+    matchLabels: #el selector con el que el rs se engancha a los pods
+      app: pod-label  #el rs se va a enganchar a los pods con este label
+  template: #comienza descripcion del pod
+    metadata:
+      name: doscont #nombre del pod
+      labels: 
+        app: pod-label # etiqueta con la que el rs va a reconocer este pod
+    spec:
+      containers: #contenedores que contendra el pod
+        - name: cont1
+          image: python:3.6-alpine
+          command: [ 'sh','-c','echo cont1 >index.html && python -m http.server 8082']
+        - name: cont2
+          image: python:3.6-alpine
+          command: [ 'sh','-c','echo cont2 >index.html && python -m http.server 8083'] 

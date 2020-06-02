@@ -1,0 +1,65 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config #nombre del config map que se utilizza para enlazarlo a los volumenes
+  labels:
+    app: front
+data:
+  test: hola
+  nginx: |
+    server {
+    listen       80;
+    server_name  localhost;
+
+  
+
+      location / {
+          root   /usr/share/nginx/html;
+          index  index.html index.htm;
+      }
+
+    
+      error_page   500 502 503 504  /50x.html;
+      location = /50x.html {
+          root   /usr/share/nginx/html;
+      }
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment-test
+  labels:
+    app: front
+spec: #aqui se habla sobre el replica set
+  revisionHistoryLimit: 8
+  replicas: 1
+  selector:
+    matchLabels:
+      app: front
+  template: #aqui ya hablamos del pod
+    metadata:
+      labels:
+        app: front # el label debe de cumplir con el selector del RS
+    spec:
+      containers:
+        - name: nginx 
+          image: nginx:alpine
+          volumeMounts: #aqui se describen los volumenes del contenedor
+          - name: nginx-vol #el nombre del volumen que debe ser el mismo declarado posterior mente
+            mountPath: /etc/nginx/conf.d/default.conf/ # la ruta dentro del contenedor en donde queremos guardar la data del volumen
+
+    volumes:
+      - name: nginx-vol # nombre del volumen que se usa para enlazar a un contenedor
+        configMap:
+          name: nginx-config # se seleciona un configmap por su nombre
+          items:
+          - key: nginx #nombre de la llave dentro de data dentro del configmap
+            path: default.conf #nombre que tomara dentro del contenedor
+    restartPolicy: Never
+
+
+        
+        
+        
+

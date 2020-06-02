@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name:  dev
+
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: limit-range
+  namespace: dev
+spec:
+  limits:
+
+  - default: #especifica el mimite por default si no se especifica en un container
+      memory: "512Mi"
+      cpu: "1"
+    defaultRequest: # especifica el valor de request por defult si no se especifica
+      memory: "256Mi"
+      cpu: "0.5"
+    type: Container
+    
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  namespace: dev
+  name: podtest2
+spec:
+  containers:
+  - name: cont1
+    image: nginx:alpine

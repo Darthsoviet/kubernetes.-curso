@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name:  dev
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: dev
+  name: deployment-test
+  annotations:
+    kubernetes.io/change-cause: se cambio el puerto
+  labels:
+    app: front
+spec: #aqui se habla sobre el replica set
+  revisionHistoryLimit: 8
+  replicas: 3
+  selector:
+    matchLabels:
+      app: front
+  template: #aqui ya hablamos del pod
+    metadata:
+      labels:
+        app: front # el label debe de cumplir con el selector del RS
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:alpine
+        resources:
+            limits:
+              cpu: "0.4"
+              memory: "300Mi"
+            
+        ports:
+          - containerPort: 100
+
+        
+        
+        

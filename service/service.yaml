@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment-test
+  labels:
+    app: front
+spec: #aqui se habla sobre el replica set
+  revisionHistoryLimit: 8
+  replicas: 3
+  selector:
+    matchLabels:
+      app: front
+  template: #aqui ya hablamos del pod
+    metadata:
+      labels:
+        app: front # el label debe de cumplir con el selector del RS
+    spec:
+    
+      containers:
+      - name: Ym1kcGJuZz0=
+        image: nginx:alpine
+        ports:
+          - containerPort: 80
+        resources:
+          limits:
+            cpu: "0.4"
+            memory: "400Mi"
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name:  my-service
+  labels:
+    app: front
+spec:
+  selector:
+    app:  front
+  type:  NodePort
+  ports:
+  - protocol: TCP
+    nodePort: 30000
+    port:  8080
+    targetPort:  80
+    

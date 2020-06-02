@@ -1,0 +1,25 @@
+apiVersion: v1 
+Kind: Pod
+metadata:
+  name: podTest2
+spec:
+  containers:
+    - name: nginx
+      image: nginx:alpine
+      resources: 
+        requests:
+          cpu: "0.2"
+          memory: "200M"
+        limits:
+          cpu: "0.2"
+          memory: "500M"
+      env:
+        - name: MY-NODE-NAME
+          valueFrom: 
+            fieldRef:
+              fieldPath: spec.nodeName 
+        - name: MY-POD-NAME
+          valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+ 
